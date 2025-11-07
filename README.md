@@ -30,6 +30,10 @@
 
 ![redive](https://github.com/RinAnime/spine-to-blender/assets/108602268/bb91e71b-c6a6-46d8-8da6-aaa0d7bf204a)
 
+### Azur Lane > Blender
+
+<img width="1274" height="569" alt="azu" src="https://github.com/user-attachments/assets/68d1cdca-b200-46f2-b78a-96553ab7e1b0" />
+
 ### Layer (obj.Location[1])
 
 ![layer](https://github.com/RinAnime/spine-to-blender/assets/108602268/3742ed7e-0d16-486e-bbee-b7c45741bc4f)
