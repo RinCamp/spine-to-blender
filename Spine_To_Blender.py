@@ -50,9 +50,9 @@ def common_draw(self, context):
         sp = br.split()
         spc = sp.column(align=True)
 
-        spc.prop(spine_setting, 'spine_json', text='', icon='RNA')
-        spc.prop(spine_setting, 'spine_atlas', text='', icon='UV_DATA')
-        spc.prop(spine_setting, 'spine_image', text='', icon='IMAGE_DATA')
+        spc.prop(spine_setting, 'spine_json', text='', icon='EVENT_J')
+        spc.prop(spine_setting, 'spine_atlas', text='', icon='EVENT_A')
+        spc.prop(spine_setting, 'spine_image', text='', icon='IMAGE_PLANE')
         
         spc2 = spc.column(align=True)
         _type = True if spine_setting.import_type == 'redive' else False
