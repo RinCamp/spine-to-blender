@@ -6,8 +6,8 @@ bl_info = {
     "version": (0, 0, 2),
     "doc_url": "",
     "location": "3D View > N Panel > Spine",
-    "description": "",
-    "warning": "不支持动画导入, 仅适配Spine3.8.json的部分内容导入(骨骼/网格)",
+    "description": "不支持动画导入, 仅适配Spine3.8.json的部分内容导入(骨骼/网格)",
+    "warning": "",
     # "tracker_url": "",
 }
 
