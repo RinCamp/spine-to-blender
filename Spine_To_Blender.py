@@ -176,7 +176,7 @@ def common_draw_en_us(self, context):
                 br = bc.row()
                 br.alignment = 'CENTER'
                 br.alert = True
-                br.label(text='活动物体不属于骨架子集')
+                br.label(text='Invalid active object')
                 
             box = col.box()
             bc = box.column()
