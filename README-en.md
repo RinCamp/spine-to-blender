@@ -4,7 +4,7 @@
 
 
 ### Installation
-- Blender > Preferences > Add-ons > Install form dick > [ Spine_To_Blender.py ]
+- Blender > Preferences > Add-ons > Install form disk > [ Spine_To_Blender.py ]
 
 ### How to use
 - Blender Version : 4.5+
