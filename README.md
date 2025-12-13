@@ -1,42 +1,19 @@
-# spine-to-blender
-- [中文](README.md)
-- [English](README-en.md) ! Using Translate
-
-### 使用
-- Spine Json 版本 : 3.8.99
-- Blender 版本 : 4.5+
-- Blender偏好设置 > 插件 > 安装 [ Spine_To_Blender.py ]
-
-- 插件面板选择对应的文件目录 .json / .atlas / .png , 点击 [ 导入 ]
-- 如果有多个皮肤，可能需要手动填写角色名称
-- 如果导入uv仍有错误, 尝试在Spine中导出打包图集, 禁用"旋转"
-
-<img width="1178" height="577" alt="export" src="https://github.com/user-attachments/assets/a0ab87ab-e767-4737-82bd-f5eaed68c919" />
-
-### 注意
-- 附件(Attachments)类型为"region", 并且使用的是解包图集的图片
-  则选择图集文件夹并使用 <Re:Dive> 类型导入
-
-- 关于 spine-json-format: http://esotericsoftware.com/spine-json-format
-
-
-### 插件仅导入骨骼 / 网格
-
-![mesh](https://github.com/RinAnime/spine-to-blender/assets/108602268/0a46ac6c-cf77-49ae-8962-3db1c931b9d9)
-
-### Arknights > Blender
-
-![arknight](https://github.com/RinAnime/spine-to-blender/assets/108602268/7185d182-18c1-41ef-ac0e-9c9f9b9ca140)
-
-### Re:Dive > Blender
-
-![redive](https://github.com/RinAnime/spine-to-blender/assets/108602268/bb91e71b-c6a6-46d8-8da6-aaa0d7bf204a)
-
-### Azur Lane > Blender
-
-<img width="1274" height="569" alt="azu" src="https://github.com/user-attachments/assets/68d1cdca-b200-46f2-b78a-96553ab7e1b0" />
-
-### Layer (obj.Location[1])
-
-![layer](https://github.com/RinAnime/spine-to-blender/assets/108602268/3742ed7e-0d16-486e-bbee-b7c45741bc4f)
-
+# # spine-to-blender
+## README  
+[中文](README.md) | [English (Using Translate)](README-en.md) 
+## 加载插件
+(当前推荐) 直接下载zip源码 | Releases选择文件下载
+Blender偏好设置 > 插件 > 安装 [spine-to-blender-main.zip]
+## 导入
+Blender版本: 5.0+ | Spine版本: 3.8 / 4.2  
+1.选择对应的文件目录 .json / .atlas / .png
+2.输入导入哪个皮肤
+3.自定义导入的角色名
+4.点击 [ 导入Spine ]  
+## 使用插槽
+1.在导入界面的 [ 导入Spine ] 左侧的按钮可以导入插槽数据
+2.在插槽界面的 [ 插槽列表 ] 右侧的按钮也可打开隐藏的简化导入界面
+3.选择目标骨架, 输入对应的角色名, 以获取插槽数据中的骨骼/网格
+4.可以点击名称左侧的光标进行选择该骨骼/网格
+5.(可以通过网格的名称快速查找相关内容 "角色名-插槽-附件")
+<img width="1601" height="1256" alt="info_zh_cn" src="https://github.com/user-attachments/assets/e49cacf0-443f-46e3-8112-8ab656f3dfa7" />
