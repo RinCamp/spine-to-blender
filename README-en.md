@@ -1,9 +1,14 @@
+
 # spine-to-blender
 - [中文](README.md)
 - [English](README-en.md) ! Using Translate
 
+## Notice
+I am currently updating the plugin to Blender 5.0.   
+If you need the English version, please download v0.1 from the release page.   
+v0.1 has not been tested for compatibility with Blender 5.0.  
 
-### Installation
+## Installation
 - Blender > Preferences > Add-ons > Install form disk > [ Spine_To_Blender.py ]
 
 ### How to use
