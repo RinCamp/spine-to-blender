@@ -1,4 +1,7 @@
 # # spine-to-blender
+
+![Anim](https://github.com/user-attachments/assets/756d70ff-3dc2-42c7-b20b-289163666614)
+
 ## README  
 
 [中文](README.md) | [English (Using Translate)](README-en.md) 
@@ -40,6 +43,16 @@ Select the atlas folder and import using the <Re:Dive> type.
 4. You can click the cursor to the left of the name to select the bone/mesh.
 
 5. (You can quickly find relevant content using the mesh name: "Character Name - Slot - Attachment")
+
+## Importing Animations (Only supported in Blender versions 4.4 and later)
+
+Only keyframes for position / scale / rotation are supported.
+
+Import as action data, non-linear animation can be used, and you can select the action and slot.
+
+Information about the animation system in Blender version 4.4
+
+https://docs.blender.org/manual/en/4.4/animation/actions.html
 
 ## About: spine-json-format
 
