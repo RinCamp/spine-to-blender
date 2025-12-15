@@ -53,6 +53,26 @@ class Scene_Spine(Camp_Scene):
                     ("4.2", "3.8 / 4.2", ""),
                 ],
             )
+            cls.default_curve_interpolation = EnumProperty(
+                default="BEZIER",
+                items=[
+                    (
+                        "CONSTANT",
+                        "常量",
+                        "",
+                    ),
+                    (
+                        "LINEAR",
+                        "线性",
+                        "",
+                    ),
+                    (
+                        "BEZIER",
+                        "贝塞尔",
+                        "",
+                    ),
+                ],
+            )
             cls.import_type = EnumProperty(
                 default="arknights",
                 items=[
@@ -68,6 +88,8 @@ class Scene_Spine(Camp_Scene):
                     ),
                 ],
             )
+            cls.import_fps = IntProperty(default=60, min=1, max=1000)
+            cls.use_fake_user = BoolProperty(default=False)
 
             cls.armature = StringProperty(search=lambda self, context, edit_text: [i.name for i in bpy.context.scene.objects if i.type == "ARMATURE"])
             cls.character_name = StringProperty(default="character")
@@ -102,6 +124,26 @@ class Scene_Spine(Camp_Scene):
                     ("4.2", "3.8 / 4.2", ""),
                 ],
             )
+            cls.default_curve_interpolation = EnumProperty(
+                default="BEZIER",
+                items=[
+                    (
+                        "CONSTANT",
+                        "Constant",
+                        "",
+                    ),
+                    (
+                        "LINEAR",
+                        "Linear",
+                        "",
+                    ),
+                    (
+                        "BEZIER",
+                        "Bezier",
+                        "",
+                    ),
+                ],
+            )
             cls.import_type = EnumProperty(
                 default="arknights",
                 items=[
@@ -117,6 +159,8 @@ class Scene_Spine(Camp_Scene):
                     ),
                 ],
             )
+            cls.import_fps = IntProperty(default=60, min=1, max=1000)
+            cls.use_fake_user = BoolProperty(default=False)
 
             cls.armature = StringProperty(search=lambda self, context, edit_text: [i.name for i in bpy.context.scene.objects if i.type == "ARMATURE"])
             cls.character_name = StringProperty(default="character")

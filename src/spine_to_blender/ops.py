@@ -49,10 +49,9 @@ class OPS_Import_Spine(Operator):
 
         BONES_DICT = load_bones(JSON_DATA)
         SLOTS_DICT = load_slots(JSON_DATA)
-        PATH_BONES = get_path_bones(JSON_DATA)
         ATTACHMENTS_DCIT = load_attachments(JSON_DATA, spine_setting.import_skin_name)
 
-        arm_obj = _import_bone(BONES_DICT, apply_pose=True, path_bones=PATH_BONES)
+        arm_obj = _import_bone(BONES_DICT, apply_pose=True)
         BONE_MATRIX_DICT = _get_bone_matrix_dict(arm_obj)
         _import_mesh(arm_obj, BONES_DICT, SLOTS_DICT, ATTACHMENTS_DCIT, BONE_MATRIX_DICT, ATLAS_DATA)
 
@@ -74,7 +73,10 @@ class OPS_Import_Spine_Slots_Data(Operator):
         spine_setting.slots.slot.clear()
 
         if not spine_setting.json_path:
-            self.report({"WARNING"}, "文件错误")
+            if bpy.context.preferences.view.language == "zh_HANS":
+                self.report({"WARNING"}, "读取文件错误")
+            else:
+                self.report({"WARNING"}, "Error reading file.")
             return {"FINISHED"}
 
         JSON_DATA = load_spine_json(spine_setting.json_path)
@@ -91,6 +93,233 @@ class OPS_Import_Spine_Slots_Data(Operator):
                 _att = slot.attachment.add()
                 _att.name = mesh_name
 
+        return {"FINISHED"}
+
+
+class OPS_Import_Spine_Animations_Data(Operator):
+    bl_idname = "camp.import_spine_animations_data"
+    bl_label = ""
+
+    def execute(self, context):
+        spine_setting = get_context_scene_cmd().spine
+
+        if not spine_setting.json_path:
+            if bpy.context.preferences.view.language == "zh_HANS":
+                self.report({"WARNING"}, "读取文件错误")
+            else:
+                self.report({"WARNING"}, "Error reading file.")
+            return {"FINISHED"}
+
+        action_name = f"{spine_setting.character_name}_SpineAnims"
+
+        if bpy.data.actions.get(action_name):
+            if bpy.context.preferences.view.language == "zh_HANS":
+                self.report({"WARNING"}, f"已存在角色名为 [ {action_name} ] 的动作")
+            else:
+                self.report({"WARNING"}, f"Action data [ {action_name} ] already exists")
+            return {"FINISHED"}
+
+        JSON_DATA = load_spine_json(spine_setting.json_path)
+        ANIMATIONS_DATA = load_animations(JSON_DATA)
+
+        action = bpy.data.actions.new(f"{spine_setting.character_name}_SpineAnims")
+        strip = action.layers.new("Layer").strips.new(type="KEYFRAME")
+
+        if spine_setting.use_fake_user:
+            action.use_fake_user = True
+
+        target_fps = spine_setting.import_fps
+        target_scale = spine_setting.import_scale
+
+        for anim_name, anim_types in ANIMATIONS_DATA.items():
+
+            slot = action.slots.new("OBJECT", anim_name)
+            channelbag = strip.channelbag(slot, ensure=True)
+
+            bone_anim_data = anim_types.get("bones", {})
+            for bone_name, f_data in bone_anim_data.items():
+                group = channelbag.groups.new(bone_name)
+
+                rotate_frames = f_data.get("rotate", [])
+                if rotate_frames:
+                    fc = channelbag.fcurves.new(data_path=f'pose.bones["{bone_name}"].rotation_euler', index=0)
+                    fc.group = group
+
+                    fc.keyframe_points.add(len(rotate_frames))
+                    for idx, frame in enumerate(rotate_frames):
+                        time = frame.get("time", 0)
+                        value = math.radians(frame.get("value", 0))
+                        curve = frame.get("curve", [])
+
+                        fc.keyframe_points[idx].co = time * target_fps, value
+
+                        if curve == "stepped":
+                            fc.keyframe_points[idx].interpolation = "CONSTANT"
+                        elif type(curve) == list and len(curve) == 4:
+                            fc.keyframe_points[idx].interpolation = "BEZIER"
+
+                            cx1 = curve[0] * target_fps
+                            cy1 = math.radians(curve[1])
+                            cx2 = curve[2] * target_fps
+                            cy2 = math.radians(curve[3])
+
+                            fc.keyframe_points[idx].handle_right_type = "FREE"
+                            fc.keyframe_points[idx].handle_right[0] = cx1
+                            fc.keyframe_points[idx].handle_right[1] = cy1
+
+                            fc.keyframe_points[idx + 1].handle_left_type = "FREE"
+                            fc.keyframe_points[idx + 1].handle_left[0] = cx2
+                            fc.keyframe_points[idx + 1].handle_left[1] = cy2
+                        else:
+                            match spine_setting.default_curve_interpolation:
+                                case "CONSTANT":
+                                    fc.keyframe_points[idx].interpolation = "CONSTANT"
+                                case "LINEAR":
+                                    fc.keyframe_points[idx].interpolation = "LINEAR"
+                                case "BEZIER":
+                                    fc.keyframe_points[idx].interpolation = "BEZIER"
+                                    fc.keyframe_points[idx].handle_left_type = "AUTO_CLAMPED"
+                                    fc.keyframe_points[idx].handle_right_type = "AUTO_CLAMPED"
+
+                    fc.update()
+                translate_frames = f_data.get("translate", [])
+                if translate_frames:
+                    fc_x = channelbag.fcurves.new(data_path=f'pose.bones["{bone_name}"].location', index=1)
+                    fc_y = channelbag.fcurves.new(data_path=f'pose.bones["{bone_name}"].location', index=2)
+                    fc_x.group = group
+                    fc_y.group = group
+
+                    fc_x.keyframe_points.add(len(translate_frames))
+                    fc_y.keyframe_points.add(len(translate_frames))
+                    for idx, frame in enumerate(translate_frames):
+                        time = frame.get("time", 0)
+                        x = frame.get("x", 0)
+                        y = frame.get("y", 0)
+                        curve = frame.get("curve", [])
+
+                        fc_x.keyframe_points[idx].co = time * target_fps, x * target_scale
+                        fc_y.keyframe_points[idx].co = time * target_fps, y * target_scale
+
+                        if curve == "stepped":
+                            fc_x.keyframe_points[idx].interpolation = "CONSTANT"
+                            fc_y.keyframe_points[idx].interpolation = "CONSTANT"
+                        elif type(curve) == list and len(curve) == 8:
+                            fc_x.keyframe_points[idx].interpolation = "BEZIER"
+                            fc_y.keyframe_points[idx].interpolation = "BEZIER"
+
+                            cx1_x = curve[0] * target_fps
+                            cy1_x = curve[1] * target_scale
+                            cx2_x = curve[2] * target_fps
+                            cy2_x = curve[3] * target_scale
+
+                            cx1_y = curve[4] * target_fps
+                            cy1_y = curve[5] * target_scale
+                            cx2_y = curve[6] * target_fps
+                            cy2_y = curve[7] * target_scale
+
+                            fc_x.keyframe_points[idx].handle_right_type = "FREE"
+                            fc_x.keyframe_points[idx].handle_right[0] = cx1_x
+                            fc_x.keyframe_points[idx].handle_right[1] = cy1_x
+
+                            fc_x.keyframe_points[idx + 1].handle_left_type = "FREE"
+                            fc_x.keyframe_points[idx + 1].handle_left[0] = cx2_x
+                            fc_x.keyframe_points[idx + 1].handle_left[1] = cy2_x
+
+                            fc_y.keyframe_points[idx].handle_right_type = "FREE"
+                            fc_y.keyframe_points[idx].handle_right[0] = cx1_y
+                            fc_y.keyframe_points[idx].handle_right[1] = cy1_y
+
+                            fc_y.keyframe_points[idx + 1].handle_left_type = "FREE"
+                            fc_y.keyframe_points[idx + 1].handle_left[0] = cx2_y
+                            fc_y.keyframe_points[idx + 1].handle_left[1] = cy2_y
+                        else:
+                            match spine_setting.default_curve_interpolation:
+                                case "CONSTANT":
+                                    fc_x.keyframe_points[idx].interpolation = "CONSTANT"
+                                    fc_y.keyframe_points[idx].interpolation = "CONSTANT"
+                                case "LINEAR":
+                                    fc_x.keyframe_points[idx].interpolation = "LINEAR"
+                                    fc_y.keyframe_points[idx].interpolation = "LINEAR"
+                                case "BEZIER":
+                                    fc_x.keyframe_points[idx].interpolation = "BEZIER"
+                                    fc_x.keyframe_points[idx].handle_left_type = "AUTO_CLAMPED"
+                                    fc_x.keyframe_points[idx].handle_right_type = "AUTO_CLAMPED"
+
+                                    fc_y.keyframe_points[idx].interpolation = "BEZIER"
+                                    fc_y.keyframe_points[idx].handle_left_type = "AUTO_CLAMPED"
+                                    fc_y.keyframe_points[idx].handle_right_type = "AUTO_CLAMPED"
+
+                scale_frames = f_data.get("scale", [])
+                if scale_frames:
+                    fc_x = channelbag.fcurves.new(data_path=f'pose.bones["{bone_name}"].scale', index=1)
+                    fc_y = channelbag.fcurves.new(data_path=f'pose.bones["{bone_name}"].scale', index=2)
+                    fc_x.group = group
+                    fc_y.group = group
+
+                    fc_x.keyframe_points.add(len(scale_frames))
+                    fc_y.keyframe_points.add(len(scale_frames))
+                    for idx, frame in enumerate(scale_frames):
+                        time = frame.get("time", 0)
+                        x = frame.get("x", 1)
+                        y = frame.get("y", 1)
+                        curve = frame.get("curve", [])
+
+                        fc_x.keyframe_points[idx].co = time * target_fps, x
+                        fc_y.keyframe_points[idx].co = time * target_fps, y
+
+                        if curve == "stepped":
+                            fc_x.keyframe_points[idx].interpolation = "CONSTANT"
+                            fc_y.keyframe_points[idx].interpolation = "CONSTANT"
+                        elif type(curve) == list and len(curve) == 8:
+                            fc_x.keyframe_points[idx].interpolation = "BEZIER"
+                            fc_y.keyframe_points[idx].interpolation = "BEZIER"
+
+                            cx1_x = curve[0] * target_fps
+                            cy1_x = curve[1]
+                            cx2_x = curve[2] * target_fps
+                            cy2_x = curve[3]
+
+                            cx1_y = curve[4] * target_fps
+                            cy1_y = curve[5]
+                            cx2_y = curve[6] * target_fps
+                            cy2_y = curve[7]
+
+                            fc_x.keyframe_points[idx].handle_right_type = "FREE"
+                            fc_x.keyframe_points[idx].handle_right[0] = cx1_x
+                            fc_x.keyframe_points[idx].handle_right[1] = cy1_x
+
+                            fc_x.keyframe_points[idx + 1].handle_left_type = "FREE"
+                            fc_x.keyframe_points[idx + 1].handle_left[0] = cx2_x
+                            fc_x.keyframe_points[idx + 1].handle_left[1] = cy2_x
+
+                            fc_y.keyframe_points[idx].handle_right_type = "FREE"
+                            fc_y.keyframe_points[idx].handle_right[0] = cx1_y
+                            fc_y.keyframe_points[idx].handle_right[1] = cy1_y
+
+                            fc_y.keyframe_points[idx + 1].handle_left_type = "FREE"
+                            fc_y.keyframe_points[idx + 1].handle_left[0] = cx2_y
+                            fc_y.keyframe_points[idx + 1].handle_left[1] = cy2_y
+                        else:
+                            match spine_setting.default_curve_interpolation:
+                                case "CONSTANT":
+                                    fc_x.keyframe_points[idx].interpolation = "CONSTANT"
+                                    fc_y.keyframe_points[idx].interpolation = "CONSTANT"
+                                case "LINEAR":
+                                    fc_x.keyframe_points[idx].interpolation = "LINEAR"
+                                    fc_y.keyframe_points[idx].interpolation = "LINEAR"
+                                case "BEZIER":
+                                    fc_x.keyframe_points[idx].interpolation = "BEZIER"
+                                    fc_x.keyframe_points[idx].handle_left_type = "AUTO_CLAMPED"
+                                    fc_x.keyframe_points[idx].handle_right_type = "AUTO_CLAMPED"
+
+                                    fc_y.keyframe_points[idx].interpolation = "BEZIER"
+                                    fc_y.keyframe_points[idx].handle_left_type = "AUTO_CLAMPED"
+                                    fc_y.keyframe_points[idx].handle_right_type = "AUTO_CLAMPED"
+
+        if bpy.context.preferences.view.language == "zh_HANS":
+            self.report({"INFO"}, f"导入动作 -> {action_name}")
+        else:
+            self.report({"INFO"}, f"Import Action -> {action_name}")
         return {"FINISHED"}
 
 
@@ -238,7 +467,7 @@ class OPS_Select_Pose_Bone(Operator):
 # -----------
 
 
-def _import_bone(JSON_BONES={}, apply_pose=False, path_bones=[]):
+def _import_bone(JSON_BONES={}, apply_pose=False):
     spine_setting = get_context_scene_cmd().spine
 
     scale = spine_setting.import_scale
@@ -653,11 +882,8 @@ def load_bones(JSON_DATA):
     return _load
 
 
-def get_path_bones(JSON_DATA):
-    bones = []
-    for data in JSON_DATA.get("path", []):
-        bones.extend(data.get("bones", []))
-    return bones
+def load_animations(JSON_DATA):
+    return JSON_DATA.get("animations", {})
 
 
 def load_slots(JSON_DATA):
@@ -991,6 +1217,7 @@ def get_vertices_list(_vertices, scale=1, _list=[]):
 classes = [
     OPS_Import_Spine,
     OPS_Import_Spine_Slots_Data,
+    OPS_Import_Spine_Animations_Data,
     OPS_Select_Json_File,
     OPS_Select_Atlas_File,
     OPS_Select_Image_File,

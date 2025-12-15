@@ -126,6 +126,12 @@ def _import_draw(self, context):
         cr.active = _type
         cr.prop(spine_setting, "atlas_folder", text="", icon="RENDERLAYERS" if _type else "X")
 
+    bc = box.column()
+    br = bc.row()
+    br.scale_x = 1.5
+    br.scale_y = 1.5
+    br.operator("camp.import_spine_slots_data", text="导入插槽数据", icon="PROP_ON")
+
     box = col.box()
     box.scale_x = 1.2
     box.scale_y = 1.2
@@ -154,8 +160,26 @@ def _import_draw(self, context):
     br = box.row()
     br.scale_x = 1.5
     br.scale_y = 1.5
-    br.operator("camp.import_spine_slots_data", text="", icon="PROP_ON")
     br.operator("camp.import_spine", text="导入Spine", icon="MATCLOTH")
+
+    box = col.box()
+    box.scale_x = 1.2
+    box.scale_y = 1.2
+    bc = box.column()
+    br = bc.row()
+    br.label(text="动作", icon="ACTION")
+    bc = box.column()
+    bc.use_property_split = True
+    bc.use_property_decorate = False
+    bc.prop(spine_setting, "import_fps", text="帧率")
+    bc.prop(spine_setting, "default_curve_interpolation", text="默认曲线")
+    bc.prop(spine_setting, "use_fake_user", text="添加伪用户", toggle=1, icon="FAKE_USER_ON" if spine_setting.use_fake_user else "FAKE_USER_OFF")
+
+    bc = box.column()
+    br = bc.row()
+    br.scale_x = 1.5
+    br.scale_y = 1.5
+    br.operator("camp.import_spine_animations_data", text="导入动画", icon="ACTION_SLOT")
 
 
 def _slots_draw(self, context):
@@ -428,6 +452,12 @@ def _import_draw_en_us(self, context):
         cr.active = _type
         cr.prop(spine_setting, "atlas_folder", text="", icon="RENDERLAYERS" if _type else "X")
 
+    bc = box.column()
+    br = bc.row()
+    br.scale_x = 1.5
+    br.scale_y = 1.5
+    br.operator("camp.import_spine_slots_data", text="Import Slots", icon="PROP_ON")
+
     box = col.box()
     box.scale_x = 1.2
     box.scale_y = 1.2
@@ -456,8 +486,26 @@ def _import_draw_en_us(self, context):
     br = box.row()
     br.scale_x = 1.5
     br.scale_y = 1.5
-    br.operator("camp.import_spine_slots_data", text="", icon="PROP_ON")
     br.operator("camp.import_spine", text="Import Spine", icon="MATCLOTH")
+
+    box = col.box()
+    box.scale_x = 1.2
+    box.scale_y = 1.2
+    bc = box.column()
+    br = bc.row()
+    br.label(text="Action", icon="ACTION")
+    bc = box.column()
+    bc.use_property_split = True
+    bc.use_property_decorate = False
+    bc.prop(spine_setting, "import_fps", text="FPS")
+    bc.prop(spine_setting, "default_curve_interpolation", text="Default Interpolation")
+    bc.prop(spine_setting, "use_fake_user", text="Add Fake User", toggle=1, icon="FAKE_USER_ON" if spine_setting.use_fake_user else "FAKE_USER_OFF")
+
+    bc = box.column()
+    br = bc.row()
+    br.scale_x = 1.5
+    br.scale_y = 1.5
+    br.operator("camp.import_spine_animations_data", text="Import Animation", icon="ACTION_SLOT")
 
 
 def _slots_draw_en_us(self, context):
