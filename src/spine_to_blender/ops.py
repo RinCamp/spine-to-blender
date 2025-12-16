@@ -249,6 +249,9 @@ class OPS_Import_Spine_Animations_Data(Operator):
                                     fc_y.keyframe_points[idx].handle_left_type = "AUTO_CLAMPED"
                                     fc_y.keyframe_points[idx].handle_right_type = "AUTO_CLAMPED"
 
+                    fc_x.update()
+                    fc_y.update()
+
                 scale_frames = f_data.get("scale", [])
                 if scale_frames:
                     fc_x = channelbag.fcurves.new(data_path=f'pose.bones["{bone_name}"].scale', index=1)
@@ -315,6 +318,9 @@ class OPS_Import_Spine_Animations_Data(Operator):
                                     fc_y.keyframe_points[idx].interpolation = "BEZIER"
                                     fc_y.keyframe_points[idx].handle_left_type = "AUTO_CLAMPED"
                                     fc_y.keyframe_points[idx].handle_right_type = "AUTO_CLAMPED"
+
+                    fc_x.update()
+                    fc_y.update()
 
         if bpy.context.preferences.view.language == "zh_HANS":
             self.report({"INFO"}, f"导入动作 -> {action_name}")
@@ -543,6 +549,12 @@ def _apply_bone_scale(arm_obj=None, JSON_BONES={}):
         pb = arm_obj.pose.bones[bone_name]
         pb.scale.y = scaleX
         pb.scale.z = scaleY
+    bpy.ops.object.mode_set(mode="OBJECT")
+
+    bpy.ops.object.mode_set(mode="EDIT")
+    bpy.ops.armature.select_all(action="SELECT")
+    bpy.ops.armature.calculate_roll(type="GLOBAL_POS_X")
+    bpy.ops.armature.select_all(action="DESELECT")
     bpy.ops.object.mode_set(mode="OBJECT")
 
 
